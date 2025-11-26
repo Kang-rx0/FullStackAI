@@ -15,8 +15,8 @@ BACKEND_DIR = os.path.join(PROJECT_ROOT, "Backend")
 if BACKEND_DIR not in sys.path:
     sys.path.append(BACKEND_DIR)
 
-from db import engine, Base 
-from model import conversation, message, user   # 注册模型到 Base.metadata
+from db import engine, Base
+from model import user  # noqa: F401  # 注册模型
 
 DB_NAME: Final[str] = "aifs"
 DB_USER: Final[str] = "root"

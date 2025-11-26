@@ -1,12 +1,16 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 
-// 路由表：目前仅有登录页
+// 路由表
 const routes: Array<RouteRecordRaw> = [
     {
         path: '/',
+        redirect: '/aifs/login',  // 根路径重定向到登录页
+    },
+    {
+        path: '/aifs/login',
         name: 'Login',
-        component: () => import('../views/Login.vue'), // 懒加载登录页
+        component: () => import('../views/Login.vue'),
         meta: { title: '登录' },
     },
 ]

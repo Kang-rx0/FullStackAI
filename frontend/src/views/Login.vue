@@ -5,17 +5,17 @@ import type { FormInstance, FormRules } from 'element-plus'
 import { loginAPI } from '@/api/user'
 
 interface LoginForm {
-  username: string
+  account: string
   password: string
 }
 
 // 把表单对象的节点设置为FormInstance类型
 const formRef = ref<FormInstance>()
-const form = reactive<LoginForm>({ username: '', password: '' })
+const form = reactive<LoginForm>({ account: '', password: '' })
 const loading = ref(false)
 
 const rules: FormRules<LoginForm> = {
-  username: [{ required: true, message: '请输入账号', trigger: 'blur' }],
+  account: [{ required: true, message: '请输入账号', trigger: 'blur' }],
   password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
 }
 
@@ -33,7 +33,7 @@ const onSubmit = async () => {
     try {
       // 调用后端登录接口 POST /aifs/login
       const response = await loginAPI({
-        username: form.username,
+        account: form.account,
         password: form.password,
       })
       
@@ -41,7 +41,8 @@ const onSubmit = async () => {
       ElMessage.success(response.message || '登录成功')
       
       // 存储用户信息到 localStorage（后续可改为 pinia store）
-      localStorage.setItem('user', JSON.stringify(response.user))
+    localStorage.setItem('user', JSON.stringify(response.user))
+    localStorage.setItem('token', response.token)
       
       // TODO: 跳转到主页或聊天页面
       console.log('登录成功，用户信息：', response.user)
@@ -79,9 +80,9 @@ const onForgot = () => {
         label-position="top"
         class="form"
       >
-        <el-form-item label="账号" prop="username">
+        <el-form-item label="账号" prop="account">
           <el-input
-            v-model.trim="form.username"
+            v-model.trim="form.account"
             placeholder="请输入账号"
             autocomplete="username"
           />

@@ -14,15 +14,15 @@ app.use(router)
 
 // import pinia
 import { createPinia } from 'pinia'
-const pinia = createPinia()
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
-// import use persist
-import { usePersist } from 'pinia-use-persist'
-// 先注册持久化插件，再挂载到应用
-pinia.use(usePersist)
-app.use(pinia as any)
-// 使用 Element Plus，并设置中文（对 3.5 的插件类型做轻量断言）
-app.use(ElementPlus as any, { locale: zhCn } as any)
+const pinia = createPinia()
+// 注册持久化插件
+pinia.use(piniaPluginPersistedstate)
+app.use(pinia)
+
+// 使用 Element Plus，并设置中文
+app.use(ElementPlus, { locale: zhCn })
 
 // mount app
 app.mount('#app')

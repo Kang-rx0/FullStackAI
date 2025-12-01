@@ -72,7 +72,7 @@ async def authenticate_user(db: AsyncDatabase, account: str, password: str) -> O
     return user
 
 
-async def create_user(db: AsyncDatabase, username: str, password: str, email: Optional[str] = None) -> dict:
+async def create_user(db: AsyncDatabase, username: str, email: str, password: str, confirmPassword ) -> dict:
     """
     创建新用户
     
@@ -80,11 +80,13 @@ async def create_user(db: AsyncDatabase, username: str, password: str, email: Op
         db: MongoDB 数据库实例
         username: 用户名
         password: 明文密码
-        email: 邮箱（可选）
+        email: 邮箱
     
     Returns:
         新创建的用户字典
     """
+    if password != confirmPassword:
+        raise ValueError("密码和确认密码不匹配")
     hashed_password = get_password_hash(password)
     now = datetime.utcnow()
     
@@ -101,4 +103,3 @@ async def create_user(db: AsyncDatabase, username: str, password: str, email: Op
     user_doc["_id"] = result.inserted_id
     
     return user_helper(user_doc)
-    return user

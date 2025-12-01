@@ -12,6 +12,7 @@ export interface LoginRequest {
 export interface RegisterRequest {
   username: string
   password: string
+  confirmPassword: string
   email?: string
 }
 
@@ -30,12 +31,14 @@ export interface AuthResponse {
   user: UserInfo
 }
 
-export function loginAPI(data: LoginRequest) {
-  return request.post<AuthResponse>('/aifs/login', data)
+// loginAPI 使用 Axios 发起请求
+// 响应拦截器已经返回 response.data，所以这里直接返回即可
+export function loginAPI(data: LoginRequest): Promise<AuthResponse> {
+  return request.post('/aifs/login', data) as unknown as Promise<AuthResponse>
 }
 
-export function registerAPI(data: RegisterRequest) {
-  return request.post<AuthResponse>('/aifs/register', data)
+export function registerAPI(data: RegisterRequest): Promise<AuthResponse> {
+  return request.post('/aifs/register', data) as unknown as Promise<AuthResponse>
 }
 
 export function welcomeAPI() {

@@ -3,11 +3,14 @@ import { reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import { loginAPI } from '@/api/user'
+import { useRouter } from 'vue-router'
 
 interface LoginForm {
   account: string
   password: string
 }
+
+const router = useRouter()
 
 // 把表单对象的节点设置为FormInstance类型
 const formRef = ref<FormInstance>()
@@ -20,7 +23,9 @@ const rules: FormRules<LoginForm> = {
 }
 
 const onSubmit = async () => {
+  // 确保 formRef 已经被赋值
   if (!formRef.value) return
+  
   // formRef.value.validate 是 Element Plus 提供的表单校验方法
   // 它接受一个回调函数 (valid) => { ... }
   // valid 参数由 Element Plus 自动传入：
@@ -41,8 +46,8 @@ const onSubmit = async () => {
       ElMessage.success(response.message || '登录成功')
       
       // 存储用户信息到 localStorage（后续可改为 pinia store）
-    localStorage.setItem('user', JSON.stringify(response.user))
-    localStorage.setItem('token', response.token)
+      localStorage.setItem('user', JSON.stringify(response.user))
+      localStorage.setItem('token', response.token)
       
       // TODO: 跳转到主页或聊天页面
       console.log('登录成功，用户信息：', response.user)
@@ -58,7 +63,7 @@ const onSubmit = async () => {
 }
 
 const onRegister = () => {
-  // 占位：跳转到注册页（后续接入）
+  router.push('/aifs/register')
 }
 
 const onForgot = () => {

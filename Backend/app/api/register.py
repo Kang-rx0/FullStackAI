@@ -4,14 +4,11 @@ from pymongo.asynchronous.database import AsyncDatabase
 from app.core.database import get_db
 from app.core.security import create_access_token
 from app.schemas.user import (
-    LoginRequest,
     RegisterRequest,
     AuthResponse,
     UserInfo,
-    MessageResponse
 )
 from app.services.user_service import (
-    authenticate_user,
     create_user,
     get_user_by_username,
     get_user_by_email
@@ -27,6 +24,7 @@ async def register(request: RegisterRequest, db: AsyncDatabase = Depends(get_db)
     - **username**: 用户名
     - **email**: 邮箱
     - **password**: 密码
+    - **comfirmPassword**: 确认密码
     
     返回:
     - **message**: 成功消息
@@ -51,7 +49,7 @@ async def register(request: RegisterRequest, db: AsyncDatabase = Depends(get_db)
             )
     
     # 创建新用户
-    user = await create_user(db, request.username, request.password, request.email)
+    user = await create_user(db, request.username, request.email, request.password, request.confirmPassword)
     
     # 生成 JWT token
     access_token = create_access_token(data={"sub": user["id"], "username": user["username"]})

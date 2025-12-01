@@ -1,12 +1,29 @@
 """
 FastAPI 应用主入口
 """
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
-from app.core.database import init_db
+from app.core.database import connect_db, close_db
 from app.api import auth
+
+# 下面的生命周期函数在app = FastAPI(...)中使用，当执行到注册fastapi时会调用，并且执行到
+# yield时会暂停，然后回到fastapi的正常运行，当fastapi关闭时会继续执行yield后面的代码
+# 也就是注册fastapi时会启动数据库连接，然后正常的fastapi处理。等到fastapi关闭
+# 例如关闭uvicorn时，会继续执行yield后面的代码，断开数据库连接
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """应用生命周期管理"""
+    # 启动时连接数据库
+    print("🚀 正在启动应用...")
+    await connect_db()
+    yield
+    # 关闭时断开连接
+    await close_db()
+    print("👋 应用已关闭")
+
 
 # 创建 FastAPI 应用实例
 app = FastAPI(
@@ -15,6 +32,7 @@ app = FastAPI(
     version="1.0.0",
     docs_url="/docs",      # Swagger UI 文档
     redoc_url="/redoc",    # ReDoc 文档
+    lifespan=lifespan,     # 生命周期管理
 )
 
 # 配置 CORS 中间件，允许前端跨域访问
@@ -31,16 +49,8 @@ app.add_middleware(
 app.include_router(auth.router, prefix=settings.API_PREFIX, tags=["认证"])
 
 
-@app.on_event("startup")
-async def startup_event():
-    """应用启动时执行：初始化数据库"""
-    print("🚀 正在初始化数据库...")
-    init_db()
-    print("✅ 数据库初始化完成")
-
-
 @app.get("/", tags=["根路径"])
-def root():
+async def root():
     """根路径，返回 API 基本信息"""
     return {
         "name": settings.APP_NAME,

@@ -1,30 +1,72 @@
 """
-User 数据库模型
+User MongoDB 文档模型
+使用 Pydantic 定义数据结构
 """
 from datetime import datetime
-from sqlalchemy import Column, String, DateTime, Text
-from sqlalchemy.dialects.mysql import CHAR
-import uuid
+from typing import Optional
+from pydantic import BaseModel, Field
+from bson import ObjectId
 
-from app.core.database import Base
+# 这里因为 MongoDB 有一个默认字段 _id 是 ObjectId 类型，
+# python和pydantic默认不支持这个类型
+# 因此需要定义一个自定义的 Pydantic 类型来处理 ObjectId
+class PyObjectId(str):
+    """自定义 ObjectId 类型，用于 Pydantic 兼容"""
+    @classmethod
+    def __get_validators__(cls):
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, v, info=None):
+        # 如果字段是 ObjectId 类型，转换为字符串
+        if isinstance(v, ObjectId):
+            return str(v)
+        # 如果字段是字符串且是有效的 ObjectId，返回字符串
+        if isinstance(v, str) and ObjectId.is_valid(v):
+            return v
+        raise ValueError("Invalid ObjectId")
 
 
-def generate_uuid():
-    """生成 UUID 字符串"""
-    return str(uuid.uuid4())
+class UserInDB(BaseModel):
+    """
+    数据库中的用户文档模型
+    对应 MongoDB users 集合
+    """
+    id: Optional[PyObjectId] = Field(default=None, alias="_id")
+    username: str = Field(..., min_length=1, max_length=50)
+    email: Optional[str] = Field(default=None, max_length=100)
+    hashed_password: str = Field(...)
+    avatar_url: Optional[str] = Field(default=None)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+    # 这是pydantic的配置类，用于适配MongoDB的ObjectId类型
+    class Config:
+        populate_by_name = True  # 允许使用 _id 或 id
+
+        # ObjectId不能被JSON序列化
+        # 将 ObjectId 转换为字符串以便 JSON 序列化
+        json_encoders = {ObjectId: str}
 
 
-class User(Base):
-    """用户表模型"""
-    __tablename__ = "users"
+class UserCreate(BaseModel):
+    """创建用户时的输入模型"""
+    username: str = Field(..., min_length=1, max_length=50)
+    email: Optional[str] = None
+    password: str = Field(..., min_length=1)
 
-    id = Column(CHAR(36), primary_key=True, default=generate_uuid, comment="用户唯一ID")
-    username = Column(String(50), unique=True, nullable=False, index=True, comment="用户名")
-    email = Column(String(100), unique=True, nullable=True, index=True, comment="邮箱")
-    hashed_password = Column(String(255), nullable=False, comment="加密后的密码")
-    avatar_url = Column(Text, nullable=True, comment="头像URL")
-    created_at = Column(DateTime, default=datetime.utcnow, comment="创建时间")
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, comment="更新时间")
 
-    def __repr__(self):
-        return f"<User(id={self.id}, username={self.username})>"
+def user_helper(user: dict) -> dict:
+    """
+    将 MongoDB 文档转换为标准格式
+    主要处理 _id 到 id 的映射
+    """
+    return {
+        "id": str(user["_id"]),
+        "username": user["username"],
+        "email": user.get("email"),
+        "hashed_password": user["hashed_password"],
+        "avatar_url": user.get("avatar_url"),
+        "created_at": user.get("created_at"),
+        "updated_at": user.get("updated_at"),
+    }

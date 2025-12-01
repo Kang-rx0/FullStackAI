@@ -1,44 +1,49 @@
 """
-数据库配置和会话管理
+MongoDB 数据库配置和连接管理
+使用 PyMongo Async API (替代已弃用的 Motor)
 """
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from pymongo import AsyncMongoClient
+from pymongo.asynchronous.database import AsyncDatabase
+from typing import Optional
 
 from app.core.config import settings
 
-# 创建数据库引擎
-# MySQL 连接字符串格式: mysql+pymysql://user:password@host:port/database
-engine = create_engine(
-    settings.DATABASE_URL,
-    pool_pre_ping=True,  # 自动检测连接是否有效
-    pool_recycle=3600,   # 连接池回收时间（秒）
-    echo=settings.DEBUG  # 调试模式下打印 SQL
-)
-
-# 创建会话工厂
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# 声明式基类，所有模型继承自此
-Base = declarative_base()
+# 全局数据库客户端和数据库实例
+client: Optional[AsyncMongoClient] = None
+db: Optional[AsyncDatabase] = None
 
 
-def get_db():
+async def connect_db():
     """
-    获取数据库会话的依赖函数
-    用于 FastAPI 的依赖注入
+    连接 MongoDB 数据库
+    在应用启动时调用
     """
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+    global client, db
+    print(f"🔗 正在连接 MongoDB: {settings.MONGO_URL}")
+    client = AsyncMongoClient(settings.MONGO_URL)
+    db = client[settings.MONGO_DB]
+    
+    # 创建索引（确保唯一性约束）
+    await db.users.create_index("username", unique=True)
+    await db.users.create_index("email", unique=True, sparse=True)  # sparse 允许 null 值
+    
+    print(f"✅ MongoDB 连接成功，数据库: {settings.MONGO_DB}")
 
 
-def init_db():
+async def close_db():
     """
-    初始化数据库，创建所有表
+    关闭 MongoDB 连接
+    在应用关闭时调用
     """
-    # 导入所有模型以确保它们被注册
-    from app.models import user  # noqa: F401
-    Base.metadata.create_all(bind=engine)
+    global client
+    if client:
+        await client.close()
+        print("🔌 MongoDB 连接已关闭")
+
+
+def get_db() -> AsyncDatabase:
+    """
+    获取数据库实例
+    用于依赖注入
+    """
+    return db

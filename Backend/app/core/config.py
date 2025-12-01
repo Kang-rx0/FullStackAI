@@ -14,17 +14,19 @@ class Settings(BaseSettings):
     DEBUG: bool = True
     API_PREFIX: str = "/aifs"
     
-    # 数据库配置
-    DB_HOST: str = "localhost"
-    DB_PORT: int = 3306
-    DB_USER: str = "root"
-    DB_PASSWORD: str = ""
-    DB_NAME: str = "aifs_db"
+    # MongoDB 配置
+    MONGO_HOST: str = "localhost"
+    MONGO_PORT: int = 27017
+    MONGO_USER: str = ""
+    MONGO_PASSWORD: str = ""
+    MONGO_DB: str = "aifs_db"
     
     @property
-    def DATABASE_URL(self) -> str:
-        """构建数据库连接 URL"""
-        return f"mysql+pymysql://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}?charset=utf8mb4"
+    def MONGO_URL(self) -> str:
+        """构建 MongoDB 连接 URL"""
+        if self.MONGO_USER and self.MONGO_PASSWORD:
+            return f"mongodb://{self.MONGO_USER}:{self.MONGO_PASSWORD}@{self.MONGO_HOST}:{self.MONGO_PORT}"
+        return f"mongodb://{self.MONGO_HOST}:{self.MONGO_PORT}"
     
     # JWT 配置
     SECRET_KEY: str = "your-super-secret-key-change-in-production"

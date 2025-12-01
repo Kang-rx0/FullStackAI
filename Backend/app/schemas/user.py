@@ -18,8 +18,9 @@ class LoginRequest(BaseModel):
 class RegisterRequest(BaseModel):
     """注册请求"""
     username: str
+    email: EmailStr
     password: str
-    email: Optional[EmailStr] = None
+    confirmPassword: str
 
 
 # ==================== 响应 Schema ====================

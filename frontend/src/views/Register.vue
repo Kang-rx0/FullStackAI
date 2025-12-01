@@ -4,7 +4,6 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import { registerAPI } from '@/api/user'
-import { fi } from 'element-plus/es/locales.mjs'
 
 interface RegisterForm {
     username: string
@@ -73,6 +72,7 @@ const onSubmit = async() =>{
                 username: form.username,
                 email: form.email,
                 password: form.password,
+                confirmPassword: form.confirmPassword,
             })
 
             // 注册成功
@@ -123,12 +123,22 @@ const onSubmit = async() =>{
 
                 <!-- Password -->
                 <el-form-item label="密码" prop="password">
-                    <el-input v-model="form.password" placeholder="输入密码"></el-input>
+                    <el-input 
+                        v-model="form.password" 
+                        type="password"
+                        show-password
+                        placeholder="输入密码"
+                    ></el-input>
                 </el-form-item>
 
                 <!-- Confirm Password -->
-                 <el-form-item label="确认密码" porp="confirmPassword">
-                    <el-input v-model="form.confirmPassword" placeholder="再次输入密码"></el-input>
+                 <el-form-item label="确认密码" prop="confirmPassword">
+                    <el-input 
+                        v-model="form.confirmPassword" 
+                        type="password"
+                        show-password
+                        placeholder="再次输入密码"
+                    ></el-input>
                  </el-form-item>
 
                 <!-- Submit Botton-->

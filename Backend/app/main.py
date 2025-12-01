@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.core.database import connect_db, close_db
-from app.api import login
+from app.api import login, register
 
 # 下面的生命周期函数在app = FastAPI(...)中使用，当执行到注册fastapi时会调用，并且执行到
 # yield时会暂停，然后回到fastapi的正常运行，当fastapi关闭时会继续执行yield后面的代码
@@ -47,6 +47,7 @@ app.add_middleware(
 # 注册路由
 # 前缀 /aifs 与前端 API 调用路径对应
 app.include_router(login.router, prefix=settings.API_PREFIX, tags=["认证"])
+app.include_router(register.router, prefix=settings.API_PREFIX, tags=["注册"])
 
 
 @app.get("/", tags=["根路径"])

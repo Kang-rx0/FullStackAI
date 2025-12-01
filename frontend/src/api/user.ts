@@ -12,6 +12,7 @@ export interface LoginRequest {
 export interface RegisterRequest {
   username: string
   password: string
+  confirmPassword: string
   email?: string
 }
 
@@ -30,16 +31,14 @@ export interface AuthResponse {
   user: UserInfo
 }
 
-// loginAPI 使用 Axios 发起请求，默认返回的是 AxiosResponse
-// promise<AuthResponse>是为了将返回类型从 AxiosResponse 转换为 AuthResponse
-// 此外，最后通过 .then 提取了AxiosResponse类型的data属性 res.data，
-// 这里面的才是被转换成了 AuthResponse 类型的数据
-export function loginAPI(data: LoginRequest):Promise<AuthResponse> {
-  return request.post<AuthResponse>('/aifs/login', data).then((res) => res.data)
+// loginAPI 使用 Axios 发起请求
+// 响应拦截器已经返回 response.data，所以这里直接返回即可
+export function loginAPI(data: LoginRequest): Promise<AuthResponse> {
+  return request.post('/aifs/login', data) as unknown as Promise<AuthResponse>
 }
 
-export function registerAPI(data: RegisterRequest):Promise<AuthResponse> {
-  return request.post<AuthResponse>('/aifs/register', data).then((res) => res.data)
+export function registerAPI(data: RegisterRequest): Promise<AuthResponse> {
+  return request.post('/aifs/register', data) as unknown as Promise<AuthResponse>
 }
 
 export function welcomeAPI() {

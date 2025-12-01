@@ -8,16 +8,11 @@ from app.core.database import get_db
 from app.core.security import create_access_token
 from app.schemas.user import (
     LoginRequest,
-    RegisterRequest,
     AuthResponse,
     UserInfo,
+    MessageResponse
 )
-from app.services.user_service import (
-    authenticate_user,
-    create_user,
-    get_user_by_username,
-    get_user_by_email
-)
+from app.services.user_service import authenticate_user
 
 router = APIRouter()
 
@@ -63,3 +58,11 @@ async def login(request: LoginRequest, db: AsyncDatabase = Depends(get_db)):
         token=access_token,
         user=user_info
     )
+
+
+@router.get("/welcome", response_model=MessageResponse, summary="欢迎接口")
+async def welcome():
+    """
+    欢迎接口，用于测试 API 是否正常工作
+    """
+    return MessageResponse(message="欢迎使用 AI FullStack API！")

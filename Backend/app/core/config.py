@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     MONGO_PORT: int = 27017
     MONGO_USER: str = ""
     MONGO_PASSWORD: str = ""
-    MONGO_DB: str = "aifs_db"
+    MONGO_DB: str = "aifs"
     
     @property
     def MONGO_URL(self) -> str:

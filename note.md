@@ -22,15 +22,7 @@ frontend-src-api-request：
 
 # 后端
 backeend-app-models-user.py：
-    定义了User模型，继承自SQLAlchemy的Base类。
-
-  - 使用了SQLAlchemy的Column、Integer、String等类型来定义数据库表的字段。
-
-  - 定义了id、username、email、hashed_password、is_active等字段。
-
-  - 通过__tablename__属性指定数据库表名为users。
   
-  - `目前uuid的函数写在这里，后面迁移到utils里`
 
 backend-app-schemas-auth.py：
     定义了登录请求和响应的Pydantic模型。

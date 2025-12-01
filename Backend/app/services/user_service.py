@@ -101,4 +101,3 @@ async def create_user(db: AsyncDatabase, username: str, password: str, email: Op
     user_doc["_id"] = result.inserted_id
     
     return user_helper(user_doc)
-    return user

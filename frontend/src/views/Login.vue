@@ -49,8 +49,8 @@ const onSubmit = async () => {
       localStorage.setItem('user', JSON.stringify(response.user))
       localStorage.setItem('token', response.token)
       
-      // TODO: 跳转到主页或聊天页面
-      console.log('登录成功，用户信息：', response.user)
+      // 跳转到聊天页面
+      router.push('/aifs/chat')
       
     } catch (error: any) {
       // 登录失败，显示错误信息

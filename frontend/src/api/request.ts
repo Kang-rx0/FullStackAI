@@ -6,18 +6,19 @@ export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localho
 // 创建 axios 实例
 const instance = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000,
+  timeout: 300000,  // 5分钟超时，AI 生成需要较长时间
   headers: {
     'Content-Type': 'application/json',
   },
 })
 
-// 请求拦截器：可自动加 token
+// 请求拦截器：自动加 token
 instance.interceptors.request.use(
   (config) => {
-    // 例如自动加 token
-    // const token = localStorage.getItem('token')
-    // if (token) config.headers['Authorization'] = `Bearer ${token}`
+    const token = localStorage.getItem('token')
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`
+    }
     return config
   },
   (error) => Promise.reject(error)

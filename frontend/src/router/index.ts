@@ -19,6 +19,12 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('../views/Register.vue'),
         meta: { title: '注册' },
     },
+    {
+        path: '/aifs/chat',
+        name: 'Chat',
+        component: () => import('../views/chat.vue'),
+        meta: { title: '聊天' },
+    },
 ]
 
 const router = createRouter({
